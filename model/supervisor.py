@@ -30,17 +30,7 @@ class FISMFSupervisor:
         ### Feas
         # initialize input_dim:1 feas_dim:1 graph_input_dim:1 graph_feas_dim:1
         Array = False
-        if args.dataset_dir == 'data/METR-LA':
-            df = pd.read_hdf('./data/METR-LA/metr-la.h5')
-            self.dataset = "METR_LA"
-            args.input_dim = 9
-            args.feas_dim = 9
-        elif args.dataset_dir == 'data/PEMS-BAY':
-            df = pd.read_hdf('./data/PEMS-BAY/pems-bay.h5')
-            self.dataset = "PEMS_BAY"
-            args.input_dim = 9
-            args.feas_dim = 9
-        elif args.dataset_dir == 'data/solar_AL':
+        if args.dataset_dir == 'data/solar_AL':
             df = pd.read_csv('./data/solar_AL/solar_AL.txt', delimiter=',')
             self.dataset = "solal_AL"
         elif args.dataset_dir == 'data/PEMS04':
@@ -67,12 +57,6 @@ class FISMFSupervisor:
             arr = file['data']
             Array = True
             self.dataset = "PEMS07"
-        elif args.dataset_dir == 'data/ECG_data':
-            self.dataset = 'ECG_data'
-            df = pd.read_csv('./data/ECG_data/ECG_data.csv', delimiter=',')
-        elif args.dataset_dir == 'data/electricity':
-            self.dataset = 'electricity'
-            df = pd.read_csv('./data/electricity/electricity.csv', delimiter=',')
         elif args.dataset_dir == 'data/stock':
             self.dataset = 'stock'
             file = np.load('./data/stock/stockx.npy')

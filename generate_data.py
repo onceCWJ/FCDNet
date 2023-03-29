@@ -247,9 +247,6 @@ def generate_graph_seq2seq_io_data(df, x_offsets, y_offsets, add_time_in_day=Tru
         
 def main(args):
     print("Generating training data:")
-    if args.dataset == "METR-LA":
-        print("METR-LA:")
-        generate_data_h5(args, "./data/METR-LA/metr-la.h5", "./data/METR-LA/")
     if args.dataset == "Solar_AL":
         print("Solar_AL:")
         generate_data(args, "./data/solar_AL/solar_AL.txt", "./data/solar_AL/")
@@ -259,25 +256,16 @@ def main(args):
     if args.dataset == "PEMS08":
         print("PEMS08:")
         generate_data_npz(args, "./data/PEMS08/pems08.npz", "./data/PEMS08/")
-    if args.dataset == "PEMS-BAY":
-        print("PEMS-BAY")
-        generate_data_h5(args, "./data/PEMS-BAY/pems-bay.h5", "./data/PEMS-BAY/")
     if args.dataset == "PEMS03":
         print("PEMS03")
         generate_data(args, "./data/PEMS03/PEMS03.npz", "./data/PEMS03/")
     if args.dataset == "PEMS07":
         print("PEMS07")
         generate_data(args, "./data/PEMS07/PEMS07.npz", "./data/PEMS07/")
-    if args.dataset == "PEMS-BAY":
-        print("PEMS-BAY:")
-        generate_data_h5(args, "./data/PEMS-BAY/pems-bay.h5", "./data/PEMS-BAY/")
-    if args.dataset == "ECG":
-        print("ECG_data:")
-        generate_data(args, "./data/ECG_data/ECG_data.csv", "./data/ECG_data/")
     if args.dataset == "stock":
         print("stock")
         generate_data(args, "./data/stock/stock.npz","./data/stock")
-        print("Finish!")
+    print("Finish!")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
