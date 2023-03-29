@@ -275,6 +275,6 @@ if __name__ == "__main__":
     parser.add_argument("--val_rate", type=float, default=0.1)
     parser.add_argument("--add_time_in_day", type=bool, default=True)
     parser.add_argument("--add_day_in_week", type=bool, default=True)
-    parser.add_argument("--dataset",type=str, default="METR-LA")
+    parser.add_argument("--dataset",type=str, default="PEMS03")
     args = parser.parse_args()
     main(args)
