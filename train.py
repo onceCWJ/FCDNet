@@ -14,7 +14,7 @@ parser.add_argument('--log_every',default=1,type=int)
 parser.add_argument('--save_model',default=0,type=int)
 #data settings
 parser.add_argument('--batch_size',default=64,type=int)
-parser.add_argument('--dataset_dir',default='data/PEMS03',type=str)
+parser.add_argument('--dataset_dir',default='data/solar_AL',type=str)
 # model settings
 parser.add_argument('--cl_decay_steps',default=2000,type=int)
 parser.add_argument('--filter_type',default='dual_random_walk',type=str)
