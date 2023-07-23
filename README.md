@@ -38,20 +38,20 @@ python train.py --dataset_dir=data/solar_AL
 * PEMS03
 ```
 # Use PEMS04 dataset
-python train.py --dataset_dir=data/PEMS03
+python train.py --dataset_dir=data/PEMS03 --train_rate 0.6 --val_rate 0.2
 ```
 * PEMS04
 ```
 # Use PEMS04 dataset
-python train.py --dataset_dir=data/PEMS04
+python train.py --dataset_dir=data/PEMS04 --train_rate 0.6 --val_rate 0.2
 ```
 * PEMS07
 ```
 # Use PEMS04 dataset
-python train.py --dataset_dir=data/PEMS04
+python train.py --dataset_dir=data/PEMS04 --train_rate 0.6 --val_rate 0.2
 ```
 * PEMS08
 ```
 # Use PEMS08 dataset
-python train.py --dataset_dir=data/PEMS08
+python train.py --dataset_dir=data/PEMS08 --train_rate 0.6 --val_rate 0.2
 ```
