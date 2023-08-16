@@ -96,7 +96,6 @@ class FAGRUCell(torch.nn.Module):
         self._use_gc_for_ru = use_gc_for_ru
         self.device = device
         self.ones = torch.eye(self._num_nodes).to(self.device)
-        self._lambda = nn.Parameter(torch.Tensor([0.2]), requires_grad=True).to(self.device)
         self._fc_params = LayerParams(self, 'fc', self.device)
         self._gconv_params = LayerParams(self, 'gconv', self.device)
         self._fagcn_beta = torch.nn.Parameter(torch.tensor([0.80]), requires_grad=True).to(self.device)
