@@ -120,10 +120,10 @@ class FISMFModel(nn.Module, Seq2SeqAttrs):
         self.dataset = args.dataset
         self.epis = []
         for index in range(self.requires_graph):
-            self.epis.append(nn.Parameter(torch.tensor([0.10], device=self.device), requires_grad=True))
+            self.epis.append(nn.Parameter(torch.tensor([0.30], device=self.device), requires_grad=True))
         self.ShortAdj_generator = ShortAdj_generator(args, node_feas)
         self.LongAdj_generator = LongAdj_generator(args, node_feas)
-        self.lambdax = torch.nn.Parameter(torch.tensor([0.10], device=self.device), requires_grad=True)
+        self.lambdax = torch.nn.Parameter(torch.tensor([0.30], device=self.device), requires_grad=True)
         self.beta = torch.nn.Parameter(torch.tensor([0.10]), requires_grad=True).to(self.device)
 
     def _compute_sampling_threshold(self, batches_seen):
