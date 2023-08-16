@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from model.cell import DCGRUCell, SmoothSparseUnit
+from model.cell import SmoothSparseUnit
 import numpy as np
 import math
 import pywt

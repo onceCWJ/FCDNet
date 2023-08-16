@@ -15,8 +15,6 @@ class FISMFSupervisor:
         self.args = args
         self.opt = args.optimizer
         self.max_grad_norm = args.max_grad_norm
-        self.ANNEAL_RATE = 0.00003
-        self.temp_min = 0.1
         self.num_sample = args.num_sample
         self.device = args.device
         # logging.

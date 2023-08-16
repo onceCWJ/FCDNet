@@ -4,7 +4,7 @@ from torch.autograd import Function
 import torch.nn as nn
 import utils
 
-class SSU(Function):  # Smooth Sparse Units "SSU":"su"
+class SSU(Function):  # Smooth Sparse Units "SSU":"ssu"
 
     @staticmethod
     def forward(ctx, input, alpha, epsilon):  # ctx:"context" input:x_tensor
@@ -73,7 +73,7 @@ class LayerParams:
         return self._biases_dict[length]
 
 
-class DCGRUCell(torch.nn.Module):
+class FAGRUCell(torch.nn.Module):
     def __init__(self, num_units, max_diffusion_step, num_nodes, nonlinearity='tanh',
                  filter_type="laplacian", use_gc_for_ru=True, device='cuda'):
         """
@@ -99,6 +99,8 @@ class DCGRUCell(torch.nn.Module):
         self._lambda = nn.Parameter(torch.Tensor([0.2]), requires_grad=True).to(self.device)
         self._fc_params = LayerParams(self, 'fc', self.device)
         self._gconv_params = LayerParams(self, 'gconv', self.device)
+        self._fagcn_beta = torch.nn.Parameter(torch.tensor([0.80]), requires_grad=True).to(self.device)
+        self._eps = 0.3
 
     @staticmethod
     def _build_sparse_matrix(L):
@@ -109,18 +111,6 @@ class DCGRUCell(torch.nn.Module):
         L = torch.sparse_coo_tensor(indices.T, L.data, L.shape, device=self.device)
         return L
 
-    def _calculate_random_walk_matrix(self, adj_mx):
-
-        # tf.Print(adj_mx, [adj_mx], message="This is adj: ")
-
-        adj_mx = adj_mx + torch.eye(int(adj_mx.shape[0])).to(self.device)
-        d = torch.sum(adj_mx, 1)
-        d_inv = 1. / d
-        d_inv = torch.where(torch.isinf(d_inv), torch.zeros(d_inv.shape).to(self.device), d_inv)
-        d_mat_inv = torch.diag(d_inv)
-        random_walk_mx = torch.mm(d_mat_inv, adj_mx)
-        return random_walk_mx
-
     def forward(self, inputs, hx, adj):
         """Gated recurrent unit (GRU) with Graph Convolution.
         :param inputs: (B, num_nodes * input_dim)
@@ -128,7 +118,8 @@ class DCGRUCell(torch.nn.Module):
         :return
         - Output: A `2-D` tensor with shape `(B, num_nodes * rnn_units)`.
         """
-        adj_mx = self._calculate_random_walk_matrix(adj).t()
+        adj_mx = self._calculate_frequency_adaption_matrix(adj).t()
+        # adj_mx = adj
         output_size = 2 * self._num_units
         if self._use_gc_for_ru:
             fn = self._gconv
@@ -155,6 +146,18 @@ class DCGRUCell(torch.nn.Module):
         x_ = x_.unsqueeze(0)
         return torch.cat([x, x_], dim=0)
 
+    def _calculate_frequency_adaption_matrix(self, adj_mx):
+        adj_mx = adj_mx + torch.eye(int(adj_mx.shape[0])).to(self.device)
+        d = torch.sum(adj_mx, 1)
+        d_inv = 1. / d
+        d_inv = torch.where(torch.isinf(d_inv), torch.zeros(d_inv.shape).to(self.device), d_inv)
+        d_mat_inv = torch.sqrt(torch.diag(d_inv))
+        random_walk_mx_lf = self._eps * torch.eye(int(adj_mx.shape[0])).to(self.device) + torch.mm(torch.mm(d_mat_inv, adj_mx), d_mat_inv)
+        random_walk_mx_hf = self._eps * torch.eye(int(adj_mx.shape[0])).to(self.device) - torch.mm(torch.mm(d_mat_inv, adj_mx), d_mat_inv)
+        random_walk_mx = self._fagcn_beta * random_walk_mx_lf + (1-self._fagcn_beta) * random_walk_mx_hf
+        return random_walk_mx
+
+
     def _fc(self, inputs, state, output_size, bias_start=0.0):
         batch_size = inputs.shape[0]
         inputs = torch.reshape(inputs, (batch_size * self._num_nodes, -1))
@@ -166,13 +169,7 @@ class DCGRUCell(torch.nn.Module):
         biases = self._fc_params.get_biases(output_size, bias_start)
         value += biases
         return value
-
-    def _mul(self, adj_mx, inputs, eps=0.3):
-        L = eps*self.ones + adj_mx
-        H = eps*self.ones - adj_mx
-        res = torch.mm(L, inputs)+torch.mm(H,inputs)
-        return res
-
+    
     def _gconv(self, inputs, adj_mx, state, output_size, bias_start=0.0):
         # Reshape input and state to (batch_size, num_nodes, input_dim/state_dim)
         batch_size = inputs.shape[0]

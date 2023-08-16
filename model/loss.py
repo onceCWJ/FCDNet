@@ -21,16 +21,10 @@ def masked_mape_loss(y_pred, y_true, dataset):
         return loss.mean()
     else:
         "Follow the metrics in other papers for fair comparison"
-        if dataset == 'PEMS04':
-            mask = torch.gt(y_true, 0.001)
-            pred = torch.masked_select(y_pred, mask)
-            true = torch.masked_select(y_true, mask)
-            return torch.mean(torch.abs(torch.div((true - pred), true)))
-        else:
-            mask = torch.gt(y_true, 0)
-            pred = torch.masked_select(y_pred, mask)
-            true = torch.masked_select(y_true, mask)
-            return torch.mean(torch.abs(torch.div((true - pred), true)))
+        mask = torch.gt(y_true, 0)
+        pred = torch.masked_select(y_pred, mask)
+        true = torch.masked_select(y_true, mask)
+        return torch.mean(torch.abs(torch.div((true - pred), true)))
 
 
 def masked_rmse_loss(y_pred, y_true):

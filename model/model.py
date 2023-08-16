@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from model.cell import DCGRUCell, SmoothSparseUnit
+from model.cell import FAGRUCell, SmoothSparseUnit
 import numpy as np
 import math
 import pywt
@@ -29,8 +29,8 @@ class EncoderModel(nn.Module, Seq2SeqAttrs):
         self.output_dim = args.output_dim
         self.seq_len = args.seq_len  # for the encoder
         self.device = args.device
-        self.dcgru_layers = nn.ModuleList(
-            [DCGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
+        self.fagru_layers = nn.ModuleList(
+            [FAGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
                        filter_type=self.filter_type, device=self.device) for _ in range(self.num_rnn_layers)])
 
 
@@ -50,8 +50,8 @@ class EncoderModel(nn.Module, Seq2SeqAttrs):
                                        device=self.device)
         hidden_states = []
         output = inputs
-        for layer_num, dcgru_layer in enumerate(self.dcgru_layers):
-            next_hidden_state = dcgru_layer(output, hidden_state[layer_num], adj)
+        for layer_num, fagru_layer in enumerate(self.fagru_layers):
+            next_hidden_state = fagru_layer(output, hidden_state[layer_num], adj)
             hidden_states.append(next_hidden_state)
             output = next_hidden_state
 
@@ -67,8 +67,8 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
         self.horizon = args.horizon  # for the decoder
         self.projection_layer = nn.Linear(self.rnn_units, self.output_dim)
         self.device = args.device
-        self.dcgru_layers = nn.ModuleList(
-            [DCGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
+        self.fagru_layers = nn.ModuleList(
+            [FAGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
                        filter_type=self.filter_type, device=self.device) for _ in range(self.num_rnn_layers)])
 
     def forward(self, inputs, adj, hidden_state=None):
@@ -82,8 +82,8 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
         """
         hidden_states = []
         output = inputs
-        for layer_num, dcgru_layer in enumerate(self.dcgru_layers):
-            next_hidden_state = dcgru_layer(output, hidden_state[layer_num], adj)
+        for layer_num, fagru_layer in enumerate(self.fagru_layers):
+            next_hidden_state = fagru_layer(output, hidden_state[layer_num], adj)
             hidden_states.append(next_hidden_state)
             output = next_hidden_state
 
