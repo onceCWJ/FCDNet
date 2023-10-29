@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import utils
-from model.model import FISMFModel
+from model.model import FCDNetModel
 from model.loss import masked_mae_loss, masked_mape_loss, masked_rmse_loss, masked_mse_loss
 import pandas as pd
 import os
@@ -10,7 +10,7 @@ import time
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-class FISMFSupervisor:
+class FCDNetSupervisor:
     def __init__(self, args):
         self.args = args
         self.opt = args.optimizer
@@ -92,10 +92,10 @@ class FISMFSupervisor:
         print(args)
 
         # setup model
-        FISMF_model = FISMFModel(self._train_feas, self._logger, args)
-        self.FISMF_model = FISMF_model.to(self.device)
+        FCDNet_model = FCDNetModel(self._train_feas, self._logger, args)
+        self.FCDNet_model = FCDNet_model.to(self.device)
         self._logger.info("Model created")
-        print("Total Trainable Parameters: {}".format(count_parameters(self.FISMF_model)))
+        print("Total Trainable Parameters: {}".format(count_parameters(self.FCDNet_model)))
         self._epoch_num = args.epoch
         if self._epoch_num > 0:
             self.load_initial_model()
@@ -118,7 +118,7 @@ class FISMFSupervisor:
                 filter_type_abbr = 'R'
             elif filter_type == 'dual_random_walk':
                 filter_type_abbr = 'DR'
-            run_id = 'FISMF_%s_%d_h_%d_%s_lr_%g_bs_%d_%s/' % (
+            run_id = 'FCDNet_%s_%d_h_%d_%s_lr_%g_bs_%d_%s/' % (
                 filter_type_abbr, max_diffusion_step, horizon,
                 structure, learning_rate, batch_size,
                 time.strftime('%m%d%H%M%S'))
@@ -133,7 +133,7 @@ class FISMFSupervisor:
             os.makedirs('models_{}/'.format(dataset))
 
         config = {}
-        config['model_state_dict'] = self.FISMF_model.state_dict()
+        config['model_state_dict'] = self.FCDNet_model.state_dict()
         config['epoch'] = epoch
         torch.save(config, 'models_{}/epo{}.tar'.format(dataset, epoch))
         self._logger.info("Saved model at {}".format(epoch))
@@ -143,25 +143,25 @@ class FISMFSupervisor:
         self._setup_graph()
         assert os.path.exists('models_{}/epo{}.tar'.format(dataset, self._epoch_num)), 'Weights at epoch %d not found' % self._epoch_num
         checkpoint = torch.load('models_{}/epo{}.tar'.format(dataset, self._epoch_num), map_location='cpu')
-        self.FISMF_model.load_state_dict(checkpoint['model_state_dict'])
+        self.FCDNet_model.load_state_dict(checkpoint['model_state_dict'])
         self._logger.info("Loaded model at {}".format(self._epoch_num))
 
     def load_test_model(self, dataset, epoch):
         self._setup_graph()
         assert os.path.exists('models_{}/epo{}.tar'.format(dataset, epoch)), 'Weights at epoch %d not found' % epoch
         checkpoint = torch.load('models_{}/epo{}.tar'.format(dataset, epoch), map_location='cpu')
-        self.FISMF_model.load_state_dict(checkpoint['model_state_dict'])
+        self.FCDNet_model.load_state_dict(checkpoint['model_state_dict'])
         self._logger.info("Loaded model at {}".format(epoch))
 
     def _setup_graph(self):
         with torch.no_grad():
-            self.FISMF_model = self.FISMF_model.eval()
+            self.FCDNet_model = self.FCDNet_model.eval()
 
             val_iterator = self._data['val_loader'].get_iterator()
 
             for _, (x, y) in enumerate(val_iterator):
                 x, y = self._prepare_data(x, y)
-                output = self.FISMF_model(x)
+                output = self.FCDNet_model(x)
                 break
 
     def train(self, args):
@@ -173,7 +173,7 @@ class FISMFSupervisor:
         :return: mean L1Loss
         """
         with torch.no_grad():
-            self.FISMF_model = self.FISMF_model.eval()
+            self.FCDNet_model = self.FCDNet_model.eval()
 
             val_iterator = self._data['{}_loader'.format(dataset)].get_iterator()
             losses = []
@@ -187,7 +187,7 @@ class FISMFSupervisor:
 
             for batch_idx, (x, y) in enumerate(val_iterator):
                 x, y = self._prepare_data(x, y)
-                output, adj = self.FISMF_model(x)
+                output, adj = self.FCDNet_model(x)
                 loss = self._compute_loss(y, output)
                 y_true = self.standard_scaler.inverse_transform(y)
                 y_pred = self.standard_scaler.inverse_transform(output)
@@ -233,7 +233,7 @@ class FISMFSupervisor:
             for batch_idx, (x, y) in enumerate(test_iterator):
                 x, y = self._prepare_data(x, y)
 
-                output, adj = self.FISMF_model(x)
+                output, adj = self.FCDNet_model(x)
                 loss = self._compute_loss(y, output)
                 y_true = self.standard_scaler.inverse_transform(y)
                 y_pred = self.standard_scaler.inverse_transform(output)
@@ -281,11 +281,11 @@ class FISMFSupervisor:
         best_idx = 0
 
         if self.opt == 'adam':
-            optimizer = torch.optim.Adam(self.FISMF_model.parameters(), lr=base_lr, eps=epsilon)
+            optimizer = torch.optim.Adam(self.FCDNet_model.parameters(), lr=base_lr, eps=epsilon)
         elif self.opt == 'sgd':
-            optimizer = torch.optim.SGD(self.FISMF_model.parameters(), lr=base_lr)
+            optimizer = torch.optim.SGD(self.FCDNet_model.parameters(), lr=base_lr)
         else:
-            optimizer = torch.optim.Adam(self.FISMF_model.parameters(), lr=base_lr, eps=epsilon)
+            optimizer = torch.optim.Adam(self.FCDNet_model.parameters(), lr=base_lr, eps=epsilon)
 
         lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=steps, gamma=float(lr_decay_ratio))
 
@@ -299,7 +299,7 @@ class FISMFSupervisor:
 
         for epoch_num in range(self._epoch_num, epochs):
             print("Num of epoch:", epoch_num)
-            self.FISMF_model = self.FISMF_model.train()
+            self.FCDNet_model = self.FCDNet_model.train()
             train_iterator = self._data['train_loader'].get_iterator()
             losses = []
             start_time = time.time()
@@ -307,16 +307,16 @@ class FISMFSupervisor:
             for batch_idx, (x, y) in enumerate(train_iterator):
                 optimizer.zero_grad()
                 x, y = self._prepare_data(x, y)
-                output, adj = self.FISMF_model(x, y, batches_seen, epoch_num)
+                output, adj = self.FCDNet_model(x, y, batches_seen, epoch_num)
                 if (epoch_num % epochs) == epochs - 1:
-                    output, adj = self.FISMF_model(x, y, batches_seen, epoch_num)
+                    output, adj = self.FCDNet_model(x, y, batches_seen, epoch_num)
                 if batches_seen == 0:
                     if self.opt == 'adam':
-                        optimizer = torch.optim.Adam(self.FISMF_model.parameters(), lr=base_lr, eps=epsilon)
+                        optimizer = torch.optim.Adam(self.FCDNet_model.parameters(), lr=base_lr, eps=epsilon)
                     elif self.opt == 'sgd':
-                        optimizer = torch.optim.SGD(self.FISMF_model.parameters(), lr=base_lr)
+                        optimizer = torch.optim.SGD(self.FCDNet_model.parameters(), lr=base_lr)
                     else:
-                        optimizer = torch.optim.Adam(self.FISMF_model.parameters(), lr=base_lr, eps=epsilon)
+                        optimizer = torch.optim.Adam(self.FCDNet_model.parameters(), lr=base_lr, eps=epsilon)
 
 
                 loss = self._compute_loss(y, output)
@@ -329,7 +329,7 @@ class FISMFSupervisor:
                 loss.backward()
                 # loss.backward()
                 # gradient clipping - this does it in place
-                torch.nn.utils.clip_grad_norm_(self.FISMF_model.parameters(), self.max_grad_norm)
+                torch.nn.utils.clip_grad_norm_(self.FCDNet_model.parameters(), self.max_grad_norm)
 
                 optimizer.step()
             lr_scheduler.step()

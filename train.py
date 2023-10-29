@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
-from model.supervisor import FISMFSupervisor
+from model.supervisor import FCDNetSupervisor
 
 parser = argparse.ArgumentParser()
 # basic settings
@@ -59,5 +59,5 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    supervisor = FISMFSupervisor(args=args)
+    supervisor = FCDNetSupervisor(args=args)
     supervisor.train(args)

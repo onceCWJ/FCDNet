@@ -1,4 +1,4 @@
-# Frequency Improved Structure Modeling for Multivariate Time-Series Forecasting
+# FCDNet: Frequency-Guided Complementary Dependency Modeling for Multivariate Time-Series Forecasting
 ## Requirements
 - Python 3.8.3
 - see `requirements.txt`

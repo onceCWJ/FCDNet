@@ -93,7 +93,7 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
         return output, torch.stack(hidden_states)
 
 
-class FISMFModel(nn.Module, Seq2SeqAttrs):
+class FCDNetModel(nn.Module, Seq2SeqAttrs):
     def __init__(self, node_feas, logger, args):
         super().__init__()
         Seq2SeqAttrs.__init__(self, args)
