@@ -25,7 +25,7 @@ class linear(nn.Module):
         return self.mlp(x)
 
 class FAGCN(nn.Module):
-    def __init__(self,args,c_in,c_out,dropout=0.3,order=2, eps=0.3):
+    def __init__(self,args,c_in,c_out,dropout=0.0,order=2, eps=0.3):
         super(FAGCN,self).__init__()
         self.nconv = nconv()
         c_in = (order*2)*c_in

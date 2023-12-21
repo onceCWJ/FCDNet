@@ -41,7 +41,7 @@ parser.add_argument('--graph_feas_dim',default=1,type=int)
 parser.add_argument('--dataset',default='',type=str)
 # train settings
 parser.add_argument('--base_lr',default=0.003,type=float)
-parser.add_argument('--dropout',default=0.3,type=float)
+parser.add_argument('--dropout',default=0.0,type=float)
 parser.add_argument('--epoch',default=0,type=int)
 parser.add_argument('--epochs',default=250,type=int)
 parser.add_argument('--epsilon',default=1.0e-3,type=float)
