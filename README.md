@@ -1,4 +1,4 @@
-# FCDNet: Frequency-Guided Complementary Dependency Modeling for Multivariate Time-Series Forecasting
+# FCDNet
 ## Requirements
 - Python 3.8.3
 - see `requirements.txt`
