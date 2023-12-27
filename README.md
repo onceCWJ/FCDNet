@@ -55,5 +55,5 @@ python train.py --dataset_dir=data/PEMS07
 # Use PEMS08 dataset
 python train.py --dataset_dir=data/PEMS08
 ```
-## Acknowledge
+## Acknowledgement
 The copyright of the code belongs to the authors of the paper. Before the official publication of the paper, this code cannot be used in the research and commercial fields
