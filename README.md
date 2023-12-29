@@ -56,4 +56,4 @@ python train.py --dataset_dir=data/PEMS07
 python train.py --dataset_dir=data/PEMS08
 ```
 ## Acknowledgement
-The copyright of the code belongs to the authors of the paper. Before the official publication of the paper, this code cannot be used in the research and commercial fields
+The copyright of the code belongs to the authors of the paper. Our paper is available on this website: https://arxiv.org/abs/2312.16450
