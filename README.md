@@ -1,4 +1,4 @@
-# FCDNet: Frequency-Guided Complementary Dependency Modeling for Multivariate Time-Series Forecasting
+# FCDNet
 ## Requirements
 - Python 3.8.3
 - see `requirements.txt`
@@ -55,3 +55,5 @@ python train.py --dataset_dir=data/PEMS07
 # Use PEMS08 dataset
 python train.py --dataset_dir=data/PEMS08
 ```
+## Acknowledgement
+The copyright of the code belongs to the authors of the paper. Before the official publication of the paper, this code cannot be used in the research and commercial fields
