@@ -58,23 +58,27 @@ class SpectralConv1d(nn.Module):
         super(SpectralConv1d, self).__init__()
         self.num_nodes = args.num_nodes
         self.seq_len = args.seq_len
-        self.in_channels = args.batch_size * args.input_dim
+        self.in_channels = args.input_dim * self.seq_len
         self.out_channels = args.dgraphs
         self.batch_size = args.batch_size
         self.Lin = nn.Linear(self.in_channels, self.out_channels)
 
     def forward(self, x):
         # [num_nodes, seq_len, input_dim*batch_size]
-        ffted = torch.view_as_real(torch.fft.fft(x, dim=1))
+        # [B, F, V, T]
+        B, F, V, T = x.shape
+        x = x.permute(0, 2, 3, 1).reshape(B, V, -1)
+        ffted = torch.view_as_real(torch.fft.fft(x, dim=-1))
         # ffted.shape: (batch, seq_len, input_dim*batch_size)
+        # print('ffted.shape:{}'.format(ffted.shape))
         real = self.Lin(ffted[..., 0].contiguous())
         img = self.Lin(ffted[..., 1].contiguous())
         time_step_as_inner = torch.cat([real.unsqueeze(-1), img.unsqueeze(-1)], dim=-1)
         iffted = torch.fft.irfft(torch.view_as_complex(time_step_as_inner), n=time_step_as_inner.shape[1], dim=1)
+        # print('iffted.shape:{}'.format(iffted.shape))
         Am = torch.sqrt(real*real+img*img)
         S = torch.atan(real/(img+0.0001))
         return iffted,Am,S
-
 
 class Instant_graph(nn.Module):
     def __init__(self, args):
@@ -82,16 +86,14 @@ class Instant_graph(nn.Module):
         self.num_nodes = args.num_nodes
         self.seq_len = args.seq_len
         self.output_channel = args.input_dim
-        self.time_step = args.seq_len
+        self.time_step = self.seq_len
         self.dgraphs = args.dgraphs
         self.batch_size = args.batch_size
         self.input_dim = args.input_dim
         self.device = args.device
-        self.level = args.level
         self.requires_graph = args.requires_graph
         self.kernel_size = args.kernel_size
         self.spectconv = SpectralConv1d(args)
-        self.Linear = nn.Linear(self.seq_len, 1)
         self.fc1 = nn.Linear(self.dgraphs, self.num_nodes)
         self.fc2 = nn.Linear(self.dgraphs, self.num_nodes)
         self.fc3 = nn.Linear(self.dgraphs, self.num_nodes)
@@ -99,10 +101,10 @@ class Instant_graph(nn.Module):
 
     def forward(self, x):
         # x.shape: [num_nodes, batch_size*input_dim, seq_len]
+        # x.shape: [B, F, V, T]
         out, Am, S = self.spectconv(x)
-        mid_input = SmoothSparseUnit((self.fc1(out)+self.fc2(Am)+self.fc3(S)),1, 0.02)
-        mid_input = mid_input.permute(0, 2, 1)
-        graph = SmoothSparseUnit((torch.squeeze(self.Linear(mid_input))),1,0.02)
+        mid_input = torch.sigmoid((self.fc1(out)+self.fc2(Am)+self.fc3(S))/3.0)
+        graph = torch.sigmoid((torch.sum(mid_input, dim=0) / mid_input.shape[0]))
         return graph
 
 
@@ -173,8 +175,8 @@ class Instant_forecasting(nn.Module):
     def forward(self, input):
         # the required input shape: [batch_size, self.input_dim, self.num_nodes, self.seq_len]
         input = input.reshape(self.seq_len, self.batch_size, self.num_nodes, -1)
-        adj = self.instant_graph(input.permute(2,3,1,0).reshape(self.num_nodes, self.seq_len, -1))
         input = input.permute(1, 3, 2, 0)
+        adj = self.instant_graph(input)
 
         in_len = input.size(3)
         if in_len < self.receptive_field:
