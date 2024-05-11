@@ -3,6 +3,19 @@
 - Python 3.8.3
 - see `requirements.txt`
 
+## If you find this code useful, please cite:
+@article{CHEN2024106385,
+title = {FCDNet: Frequency-guided complementary dependency modeling for multivariate time-series forecasting},
+journal = {Neural Networks},
+pages = {106385},
+year = {2024},
+issn = {0893-6080},
+doi = {https://doi.org/10.1016/j.neunet.2024.106385},
+url = {https://www.sciencedirect.com/science/article/pii/S0893608024003095},
+author = {Weijun Chen and Heyuan Wang and Ye Tian and Shijie Guan and Ning Liu},
+}
+
+
 ## Data Preparation
 
 #### TXT File
