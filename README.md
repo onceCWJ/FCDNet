@@ -4,6 +4,7 @@
 - see `requirements.txt`
 
 ## If you find this code useful, please cite:
+```bibtex
 @article{CHEN2024106385,
 title = {FCDNet: Frequency-guided complementary dependency modeling for multivariate time-series forecasting},
 journal = {Neural Networks},
