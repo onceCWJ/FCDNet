@@ -56,4 +56,4 @@ python train.py --dataset_dir=data/PEMS07
 python train.py --dataset_dir=data/PEMS08
 ```
 ## Acknowledgement
-The paper is accepted by Neural Networks in 2024.5.7, please refer to this website for the preprint version: https://arxiv.org/abs/2312.16450. And the link to the formal version will be given soon.
+The paper is accepted by Neural Networks in 2024.5.7, please refer to this website for the pre-proof version: (https://www.sciencedirect.com/science/article/pii/S0893608024003095) And the link to the formal version will be given soon.
