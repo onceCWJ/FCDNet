@@ -15,7 +15,7 @@ doi = {https://doi.org/10.1016/j.neunet.2024.106385},
 url = {https://www.sciencedirect.com/science/article/pii/S0893608024003095},
 author = {Weijun Chen and Heyuan Wang and Ye Tian and Shijie Guan and Ning Liu}
 }
-
+```
 
 ## Data Preparation
 
