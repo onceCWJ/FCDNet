@@ -66,6 +66,7 @@ If you find this codebase helpful for your research, please consider citing the 
   author={Chen, Weijun and Wang, Heyuan and Tian, Ye and Guan, Shijie and Liu, Ning},
   journal={arXiv preprint arXiv:2312.16450},
   year={2023}
+}
 ```
 **Note:** _The reason for the voluntary withdrawal of our paper from Neural Networks, after it was accepted, was due to a dispute over the order of authors. This withdrawal is unrelated to the content of the paper itself._
 
