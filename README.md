@@ -57,7 +57,7 @@ python train.py --dataset_dir=data/PEMS07
 python train.py --dataset_dir=data/PEMS08
 ```
 
-# Citation Request
+# Citation Format
 If you find this codebase helpful for your research, please consider citing the following paper:
 
 ```plaintext
