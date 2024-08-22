@@ -60,10 +60,12 @@ python train.py --dataset_dir=data/PEMS08
 # Citation Request
 If you find this codebase helpful for your research, please consider citing the following paper:
 
+```plaintext
 @article{chen2023fcdnet,
   title={FCDNet: Frequency-Guided Complementary Dependency Modeling for Multivariate Time-Series Forecasting},
   author={Chen, Weijun and Wang, Heyuan and Tian, Ye and Guan, Shijie and Liu, Ning},
   journal={arXiv preprint arXiv:2312.16450},
   year={2023}
 }
+
 
