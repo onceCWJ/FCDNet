@@ -174,7 +174,7 @@ class Instant_forecasting(nn.Module):
 
     def forward(self, input):
         # the required input shape: [batch_size, self.input_dim, self.num_nodes, self.seq_len]
-        input = input.reshape(self.seq_len, self.batch_size, self.num_nodes, -1)
+        input = input.reshape(self.seq_len, input.shape[1], self.num_nodes, -1)
         input = input.permute(1, 3, 2, 0)
         adj = self.instant_graph(input)
 
