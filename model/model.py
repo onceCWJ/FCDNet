@@ -183,7 +183,7 @@ class FCDNetModel(nn.Module, Seq2SeqAttrs):
         adj_list = (ShortAdj + self.lambdax * Long_Adj)/ (1.0+self.lambdax)
         adj = adj_list[0]
         for index in range(1, self.requires_graph):
-            adj = adj + self.epis[index] * adj_list[index] # 这里可以设计一个更为复杂的fusion模块
+            adj = adj + self.epis[index] * adj_list[index]
         encoder_hidden_state = self.encoder(inputs, adj)
         outputs = self.decoder(encoder_hidden_state, adj, labels, batches_seen=batches_seen)
         res, adj = self.instant_forecasting(inputs)
